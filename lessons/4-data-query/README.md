@@ -10,7 +10,27 @@
 
 ## 1. Selección monotabla
 
-.
+Para todos los campos:
+
+    SELECT *
+      FROM books;
+
+Proyectando por algún campo:
+
+  SELECT name
+    FROM books;
+
+Ordenando:
+
+  SELECT name
+    FROM books
+    ORDER BY name;
+
+Limitando a los 2 primeros:
+
+  SELECT TOP(2) name
+    FROM books
+    ORDER BY name;
 
 ## 2. Selección multitabla
 
