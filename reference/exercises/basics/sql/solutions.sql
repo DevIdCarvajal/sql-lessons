@@ -1,112 +1,66 @@
 -- -------------- Query 1 -----------------
 
 SELECT e.Nombre
-  FROM empleados e,
-       bares b,
-       reparto r
-WHERE e.CodE = r.CodE
-  AND r.CodB = b.CodB
-  AND b.Nombre LIKE 'Stop'
-  AND r.Fecha BETWEEN '2005-10-17' AND '2005-10-23';
-  
--- Solucion alternativa con INNER JOIN
-
-SELECT e.Nombre
-FROM empleados e
-     INNER JOIN reparto r
-       ON e.CodE = r.CodE
-     INNER JOIN bares b
-       ON r.CodB = b.CodB
+FROM empleados e JOIN reparto r ON e.CodE = r.CodE
+                 JOIN bares b ON r.CodB = b.CodB
 WHERE b.Nombre LIKE 'Stop'
-  AND r.Fecha BETWEEN '2005-10-17' AND '2005-10-23';
+  AND r.Fecha BETWEEN '2023-05-17' AND '2023-05-23';
 
 -- -------------- Query 2 -----------------
 
-SELECT b.Cif,
-       b.Nombre
-FROM cervezas c,
-     bares b,
-     reparto r
-WHERE c.CodC = r.CodC
-  AND r.CodB = b.CodB
-  AND c.Envase LIKE 'Botella'
+SELECT DISTINCT b.Cif, b.Nombre, b.Localidad
+FROM cervezas c JOIN reparto r ON c.CodC = r.CodC
+                JOIN bares b ON r.CodB = b.CodB
+WHERE c.Envase LIKE 'Botella'
   AND c.Capacidad < 1
 ORDER BY b.Localidad;
 
 -- -------------- Query 3 -----------------
 
-SELECT b.Nombre,
-       c.Envase,
-       c.Capacidad,
-       r.Fecha,
-       r.Cantidad
-FROM cervezas c,
-     bares b,
-     empleados e,
-     reparto r
-WHERE c.CodC = r.CodC
-  AND b.CodB = r.CodB
-  AND e.CodE = r.CodE
-  AND e.Nombre LIKE 'Prudencio Caminero';
+SELECT b.Nombre, c.Envase, c.Capacidad, r.Fecha, r.Cantidad
+FROM cervezas c JOIN reparto r ON c.CodC = r.CodC
+                JOIN bares b ON r.CodB = b.CodB
+                JOIN empleados e ON e.CodE = r.CodE
+WHERE e.Nombre LIKE 'Prudencio Caminero';
 
 -- -------------- Query 4 -----------------
 
 SELECT b.Nombre
-FROM cervezas c,
-     bares b,
-     reparto r
-WHERE c.CodC = r.CodC
-  AND b.CodB = r.CodB
-  AND c.Envase LIKE 'Botella'
+FROM cervezas c JOIN reparto r ON c.CodC = r.CodC
+                JOIN bares b ON r.CodB = b.CodB
+WHERE c.Envase LIKE 'Botella'
   AND (c.Capacidad = '0.2' OR c.Capacidad = '0.33');
 
 -- -------------- Query 5 -----------------
 
 SELECT e.Nombre
-FROM cervezas c,
-     bares b,
-     empleados e,
-     reparto r
-WHERE c.CodC = r.CodC
-  AND b.CodB = r.CodB
-  AND e.CodE = r.CodE
-  AND b.Nombre LIKE 'Stop'
+FROM cervezas c JOIN reparto r ON c.CodC = r.CodC
+                JOIN bares b ON r.CodB = b.CodB
+                JOIN empleados e ON e.CodE = r.CodE
+WHERE b.Nombre LIKE 'Stop'
   AND c.Envase LIKE 'Botella'
   AND e.CodE IN (
         SELECT e2.CodE
-        FROM cervezas c2,
-             bares b2,
-             empleados e2,
-             reparto r2
-        WHERE c2.CodC = r2.CodC
-          AND b2.CodB = r2.CodB
-          AND e2.CodE = r2.CodE
-          AND c2.Envase LIKE 'Botella'
+        FROM cervezas c2 JOIN reparto r2 ON c2.CodC = r2.CodC
+                         JOIN bares b2 ON r2.CodB = b2.CodB
+                         JOIN empleados e2 ON e2.CodE = r2.CodE
+        WHERE c2.Envase LIKE 'Botella'
           AND b2.Nombre LIKE 'Las Vegas'
         );
 
 -- -------------- Query 6 -----------------
 
-SELECT e.Nombre,
-       COUNT(*)
-FROM bares b,
-     empleados e,
-     reparto r
-WHERE b.CodB = r.CodB
-  AND e.CodE = r.CodE
-  AND b.Localidad NOT LIKE 'Villa Botijo'
-GROUP BY r.CodE,
-         r.CodB;
+SELECT e.Nombre, COUNT(*) AS NumeroEmpleados
+FROM bares b JOIN reparto r ON b.CodB = r.CodB
+             JOIN empleados e ON e.CodE = r.CodE
+WHERE b.Localidad NOT LIKE 'Villa Botijo'
+GROUP BY r.CodE, r.CodB;
 
 -- -------------- Query 7 -----------------
 
-SELECT TOP(1) b.Nombre,
-              b.Localidad
-FROM bares b,
-     cervezas c,
-     reparto r
-WHERE b.CodB = r.CodB
-  AND c.CodC = r.CodC
+SELECT TOP(1) b.Nombre, b.Localidad
+FROM bares JOIN reparto r ON b.CodB = r.CodB
+           JOIN cervezas c ON c.CodC = r.CodC
 GROUP BY r.CodB
 ORDER BY SUM(r.Cantidad * c.Capacidad) DESC;
 
@@ -116,9 +70,7 @@ SELECT b.Nombre
 FROM bares b
 WHERE b.CodB IN (
         SELECT r.CodB
-          FROM cervezas c,
-               reparto r
-          WHERE c.CodC = r.CodC
-            AND c.Envase LIKE 'Botella'
+          FROM cervezas c JOIN reparto r ON c.CodC = r.CodC
+          WHERE c.Envase LIKE 'Botella'
             AND c.Capacidad < 1
         );
